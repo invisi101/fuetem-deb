@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# vpncheck.sh — ProtonVPN (NetShield ON) leak & blocking audit (Arch-safe)
+# vpncheck.sh — ProtonVPN (NetShield ON) leak & blocking audit
 
 set -eo pipefail
 trap 'echo "❌ vpncheck.sh failed at line $LINENO" >&2' ERR
