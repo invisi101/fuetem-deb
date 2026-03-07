@@ -1,0 +1,9 @@
+bin/fuetem usr/bin
+lib/lib.sh usr/lib/fuetem
+lib/main.sh usr/lib/fuetem
+lib/vpncheck.sh usr/lib/fuetem
+lib/scan-secrets.sh usr/lib/fuetem
+lib/integrity_check.sh usr/lib/fuetem
+lib/sysmonitor.sh usr/lib/fuetem
+assets/arch.png usr/share/fuetem
+assets/fuetem.desktop usr/share/applications

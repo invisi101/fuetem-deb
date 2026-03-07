@@ -1,0 +1,17 @@
+Source: fuetem-deb
+Section: admin
+Priority: optional
+Maintainer: invisi101 <invisi101@users.noreply.github.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/invisi101/fuetem-deb
+
+Package: fuetem-deb
+Architecture: all
+Depends: bash, iproute2, coreutils, systemd, dnsutils, curl, ${misc:Depends}
+Recommends: deborphan, debsums, debsecan, smartmontools, nmap, lm-sensors, gitleaks
+Suggests: trufflehog, aide, auditd, btrfs-progs, flatpak, wl-clipboard
+Description: System maintenance console for Debian-based distros
+ A menu-driven TUI that brings together cleanup, health checks,
+ security auditing, VPN leak testing, secret scanning, and
+ real-time system monitoring.

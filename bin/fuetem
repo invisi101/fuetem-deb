@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Resolve FUETEM_LIB_DIR: installed location or development layout
+if [[ -f "/usr/lib/fuetem/lib.sh" ]]; then
+	FUETEM_LIB_DIR="/usr/lib/fuetem"
+elif [[ -f "${HOME}/.local/lib/fuetem/lib.sh" ]]; then
+	FUETEM_LIB_DIR="${HOME}/.local/lib/fuetem"
+else
+	# Development: running from repo checkout
+	FUETEM_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)"
+fi
+export FUETEM_LIB_DIR
+
+source "$FUETEM_LIB_DIR/lib.sh"
+source "$FUETEM_LIB_DIR/main.sh"

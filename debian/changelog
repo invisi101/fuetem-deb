@@ -1,0 +1,5 @@
+fuetem-deb (1.0.0-1) unstable; urgency=medium
+
+  * Initial release. Port of fuetem-arch to Debian-based systems.
+
+ -- invisi101 <invisi101@users.noreply.github.com>  Sat, 07 Mar 2026 12:00:00 +0000

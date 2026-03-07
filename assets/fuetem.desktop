@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Fuetem
+Comment=System maintenance console
+Exec=fuetem
+Icon=/usr/share/fuetem/arch.png
+Terminal=true
+Type=Application
+Categories=System;Monitor;
+Keywords=maintenance;cleanup;health;security;
