@@ -4,4 +4,4 @@
 	dh $@
 
 override_dh_auto_install:
-	$(MAKE) install PREFIX=/usr DESTDIR=$(CURDIR)/debian/fuetem-deb
+	$(MAKE) install-files PREFIX=/usr DESTDIR=$(CURDIR)/debian/fuetem-deb

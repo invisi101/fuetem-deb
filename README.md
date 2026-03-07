@@ -82,7 +82,7 @@ Select a module from the numbered menu. Some modules require `sudo` and will pro
 
 ## Dependencies
 
-All dependencies are installed automatically by both install methods.
+Core dependencies are installed automatically by both install methods.
 
 | Package | Used by |
 |---------|---------|
@@ -98,12 +98,12 @@ All dependencies are installed automatically by both install methods.
 | `smartmontools` | NVMe SMART health checks |
 | `nmap` | LAN network scanning |
 | `lm-sensors` | Temperature monitoring |
-| `gitleaks` | Git secret scanning |
 
 The following are not in most distro repos or have heavier footprints. They are not installed automatically — install them manually if you need the features they enable.
 
 | Package | Used by |
 |---------|---------|
+| `gitleaks` | Git secret scanning |
 | `trufflehog` | Git secret scanning |
 | `aide` | File integrity monitoring |
 | `auditd` | Security event analysis |
