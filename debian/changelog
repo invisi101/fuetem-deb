@@ -1,12 +1,3 @@
-fuetem-deb (1.0.2-1) unstable; urgency=medium
-
-  * Fix install failures: remove gitleaks from apt deps (not in repos)
-  * Add DESTDIR support to Makefile for correct deb staging
-  * Remove duplicate debian/compat (use debhelper-compat in control)
-  * Use install-files target in debian/rules to skip deps during build
-
- -- invisi101 <invisi101@users.noreply.github.com>  Sat, 07 Mar 2026 12:00:00 +0000
-
 fuetem-deb (1.0.0-1) unstable; urgency=medium
 
   * Initial release. Port of fuetem-arch to Debian-based systems.
