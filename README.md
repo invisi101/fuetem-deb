@@ -82,7 +82,9 @@ Select a module from the numbered menu. Some modules require `sudo` and will pro
 
 ## Dependencies
 
-Core dependencies are installed automatically by both install methods.
+### Auto-installed
+
+These are installed automatically whether you use `apt install ./fuetem-deb_*_all.deb` or `make install`:
 
 | Package | Used by |
 |---------|---------|
@@ -99,7 +101,9 @@ Core dependencies are installed automatically by both install methods.
 | `nmap` | LAN network scanning |
 | `lm-sensors` | Temperature monitoring |
 
-The following are not in most distro repos or have heavier footprints. They are not installed automatically — install them manually if you need the features they enable.
+### Optional
+
+Not installed automatically. Install manually if you want the features they enable.
 
 | Package | Used by |
 |---------|---------|
