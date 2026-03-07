@@ -15,19 +15,19 @@
 | 7 | **Integrity Check** | AIDE, debsums file integrity, debsecan CVEs, auditd analysis, SUID/SGID scan |
 | 8 | **Network Port Scan** | Local listening ports + optional nmap LAN sweep |
 | 9 | **VPN Check** | ProtonVPN leak audit — IP, DNS, IPv6, STUN, ad/tracker blocking scorecard |
-| 10 | **Secret Scan** | TruffleHog + Gitleaks across all local git repos |
+| 10 | **Secret Scan** | TruffleHog / Gitleaks across all local git repos |
 | 11 | **Verify File Checksum** | SHA-256 verification with clipboard auto-detect |
 
 ## Install
 
-There are two ways to install fuetem. Both install all dependencies automatically.
+There are two ways to install fuetem. Both install core dependencies automatically.
 
 ### Option 1: .deb package (recommended)
 
 Download the latest `.deb` from the [Releases](https://github.com/invisi101/fuetem-deb/releases) page, then install it with apt:
 
 ```bash
-sudo apt install ./fuetem-deb_1.0.0-1_all.deb
+sudo apt install ./fuetem-deb_*_all.deb
 ```
 
 This installs fuetem system-wide to `/usr/` and pulls in all required dependencies via apt.
@@ -210,7 +210,7 @@ Produces timestamped text and CSV reports in the logs directory.
 
 ### 10. Secret Scan
 
-Scans every git repository under your home directory for accidentally committed secrets (API keys, passwords, tokens, private keys) using two tools:
+Scans every git repository under your home directory for accidentally committed secrets (API keys, passwords, tokens, private keys). Runs whichever of these tools are available:
 
 - **TruffleHog** — scans git history for high-entropy strings and known secret patterns, distinguishing between verified (confirmed live) and unverified secrets.
 - **Gitleaks** — pattern-based scanning using a comprehensive ruleset for common secret formats.
