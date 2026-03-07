@@ -1,3 +1,9 @@
+fuetem-deb (1.0.3-1) unstable; urgency=medium
+
+  * Remove Arch-specific comment from vpncheck.sh
+
+ -- invisi101 <invisi101@users.noreply.github.com>  Sat, 07 Mar 2026 12:00:00 +0000
+
 fuetem-deb (1.0.2-1) unstable; urgency=medium
 
   * Move deborphan, debsums, debsecan, smartmontools, nmap, lm-sensors to
