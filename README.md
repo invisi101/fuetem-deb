@@ -22,9 +22,10 @@
 
 ### From .deb package
 
+Download the latest `.deb` from [Releases](https://github.com/invisi101/fuetem-deb/releases), then:
+
 ```bash
-sudo dpkg -i fuetem-deb_1.0.0-1_all.deb
-sudo apt-get install -f
+sudo apt install ./fuetem-deb_*.deb
 ```
 
 ### Manual install
@@ -36,6 +37,8 @@ make install
 ```
 
 This installs to `~/.local/` by default. Override with `make install PREFIX=/usr/local`.
+
+`make install` automatically runs `apt-get install` for all required and recommended dependencies. To install only the files without dependencies, run `make install-files`.
 
 ### Uninstall
 

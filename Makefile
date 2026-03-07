@@ -4,9 +4,17 @@ LIBDIR    = $(PREFIX)/lib/fuetem
 SHAREDIR  = $(PREFIX)/share/fuetem
 APPDIR    = $(PREFIX)/share/applications
 
-.PHONY: install uninstall
+DEPS      = bash iproute2 coreutils systemd dnsutils curl deborphan debsums debsecan smartmontools nmap lm-sensors gitleaks
 
-install:
+.PHONY: install install-files uninstall deps
+
+deps:
+	sudo apt-get update
+	sudo apt-get install -y $(DEPS)
+
+install: deps install-files
+
+install-files:
 	install -d $(BINDIR) $(LIBDIR) $(SHAREDIR)
 	install -m 755 bin/fuetem $(BINDIR)/fuetem
 	install -m 644 lib/lib.sh $(LIBDIR)/lib.sh
