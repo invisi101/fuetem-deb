@@ -15,15 +15,17 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y build-essential debhelper devscripts
 
       - name: Build .deb package
-        run: dpkg-buildpackage -us -uc -b
+        run: |
+          dpkg-buildpackage -us -uc -b
+          cp ../fuetem-deb_*.deb .
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
         with:
           name: fuetem-deb
-          path: ../fuetem-deb_*.deb
+          path: fuetem-deb_*.deb
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: ../fuetem-deb_*.deb
+          files: fuetem-deb_*.deb
