@@ -1,16 +1,45 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Resolve FUETEM_LIB_DIR: installed location or development layout
+# Resolve install prefix: /usr or ~/.local or dev layout
 if [[ -f "/usr/lib/fuetem/lib.sh" ]]; then
-	FUETEM_LIB_DIR="/usr/lib/fuetem"
+	FUETEM_PREFIX="/usr"
 elif [[ -f "${HOME}/.local/lib/fuetem/lib.sh" ]]; then
-	FUETEM_LIB_DIR="${HOME}/.local/lib/fuetem"
+	FUETEM_PREFIX="${HOME}/.local"
 else
 	# Development: running from repo checkout
-	FUETEM_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)"
+	FUETEM_PREFIX=""
 fi
+
+FUETEM_LIB_DIR="${FUETEM_PREFIX:+${FUETEM_PREFIX}/lib/fuetem}"
+FUETEM_LIB_DIR="${FUETEM_LIB_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../lib" && pwd)}"
 export FUETEM_LIB_DIR
+
+# --- Uninstall support ---
+if [[ "${1:-}" == "--uninstall" ]]; then
+	if [[ -z "$FUETEM_PREFIX" ]]; then
+		echo "fuetem is running from a dev checkout, nothing to uninstall."
+		exit 0
+	fi
+
+	echo "This will remove fuetem from ${FUETEM_PREFIX}."
+	read -r -p "Continue? (y/N): " confirm
+	if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+		echo "Cancelled."
+		exit 0
+	fi
+
+	SUDO=""
+	[[ "$FUETEM_PREFIX" == "/usr" ]] && SUDO="sudo"
+
+	$SUDO rm -f "${FUETEM_PREFIX}/bin/fuetem"
+	$SUDO rm -rf "${FUETEM_PREFIX}/lib/fuetem"
+	$SUDO rm -rf "${FUETEM_PREFIX}/share/fuetem"
+	$SUDO rm -f "${FUETEM_PREFIX}/share/applications/fuetem.desktop"
+
+	echo "fuetem has been uninstalled from ${FUETEM_PREFIX}."
+	exit 0
+fi
 
 source "$FUETEM_LIB_DIR/lib.sh"
 source "$FUETEM_LIB_DIR/main.sh"

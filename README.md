@@ -20,15 +20,19 @@
 
 ## Install
 
-### From .deb package
+There are two ways to install fuetem. Both install all dependencies automatically.
 
-Download the latest `.deb` from [Releases](https://github.com/invisi101/fuetem-deb/releases), then:
+### Option 1: .deb package (recommended)
+
+Download the latest `.deb` from the [Releases](https://github.com/invisi101/fuetem-deb/releases) page, then install it with apt:
 
 ```bash
-sudo apt install ./fuetem-deb_*.deb
+sudo apt install ./fuetem-deb_1.0.0-1_all.deb
 ```
 
-### Manual install
+This installs fuetem system-wide to `/usr/` and pulls in all required dependencies via apt.
+
+### Option 2: Install from source
 
 ```bash
 git clone https://github.com/invisi101/fuetem-deb.git
@@ -36,17 +40,49 @@ cd fuetem-deb
 make install
 ```
 
-This installs to `~/.local/` by default. Override with `make install PREFIX=/usr/local`.
+This installs to `~/.local/` by default and runs `sudo apt-get install` for all dependencies. Make sure `~/.local/bin` is in your `PATH`.
 
-`make install` automatically runs `apt-get install` for all required and recommended dependencies. To install only the files without dependencies, run `make install-files`.
-
-### Uninstall
+To install to a different location:
 
 ```bash
-make uninstall
+make install PREFIX=/usr/local
 ```
 
+If you already have the dependencies and just want to copy the files:
+
+```bash
+make install-files
+```
+
+## Uninstall
+
+### .deb package
+
+```bash
+sudo apt remove fuetem-deb
+```
+
+### Manual install
+
+From anywhere, run:
+
+```bash
+fuetem --uninstall
+```
+
+This detects where fuetem is installed and removes all its files. You don't need the source repo.
+
+## Usage
+
+```bash
+fuetem
+```
+
+Select a module from the numbered menu. Some modules require `sudo` and will prompt as needed.
+
 ## Dependencies
+
+All dependencies are installed automatically by both install methods. Modules gracefully skip features when optional tools are missing.
 
 ### Required
 
@@ -59,7 +95,7 @@ make uninstall
 | `systemd` | `systemctl`, `journalctl` |
 | `curl` | HTTP requests |
 
-### Recommended
+### Recommended (installed by default)
 
 | Package | Used by |
 |---------|---------|
@@ -71,26 +107,19 @@ make uninstall
 | `lm-sensors` | Temperature monitoring |
 | `gitleaks` | Git secret scanning |
 
-### Optional
+### Optional (not installed automatically)
+
+These are not in most distro repos or have heavier footprints. Install them manually if you need the features they enable.
 
 | Package | Used by |
 |---------|---------|
 | `trufflehog` | Git secret scanning |
 | `aide` | File integrity monitoring |
-| `auditd` | Security analysis |
+| `auditd` | Security event analysis |
 | `btrfs-progs` | Btrfs filesystem checks |
 | `flatpak` | Flatpak cleanup |
 | `wl-clipboard` | Clipboard checksum detection |
 | `chezmoi` | Dotfile drift detection |
-| `kitty` / `alacritty` / `foot` | Terminal for system monitor window |
-
-## Usage
-
-```bash
-fuetem
-```
-
-Select a module from the menu. That's it.
 
 ## Logs
 
