@@ -97,7 +97,7 @@ render() {
 	# ── Battery ──
 	if [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]; then
 		printf "  %b── Battery ────────────────────────────────────────────────────%b\n" "$YELLOW" "$RESET"
-		local bat_dir bat_status bat_cap bat_watts bat_energy_now bat_energy_full bat_health bat_cycles bat_voltage
+		local bat_dir bat_status bat_cap bat_watts bat_energy_now bat_energy_full bat_health bat_cycles
 		for bat_dir in /sys/class/power_supply/BAT*; do
 			[[ -d "$bat_dir" ]] || continue
 			bat_status=$(cat "$bat_dir/status" 2>/dev/null || echo "Unknown")

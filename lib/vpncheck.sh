@@ -5,7 +5,7 @@ set -eo pipefail
 trap 'echo "❌ vpncheck.sh failed at line $LINENO" >&2' ERR
 
 # ---------- Pretty output ----------
-RED="\e[31m"; GREEN="\e[32m"; YELLOW="\e[33m"; BLUE="\e[34m"; BOLD="\e[1m"; RESET="\e[0m"
+GREEN="\e[32m"; YELLOW="\e[33m"; BLUE="\e[34m"; BOLD="\e[1m"; RESET="\e[0m"
 ok(){ echo -e "${GREEN}✔${RESET} $*"; }
 warn(){ echo -e "${YELLOW}!${RESET} $*"; }
 info(){ echo -e "${BLUE}i${RESET} $*"; }
@@ -42,12 +42,6 @@ MAXJOBS=${MAXJOBS:-10}
 SINKHOLES=("0.0.0.0" "10.10.10.1" "::" "0.0.0.17")
 
 EXPECTED_ALLOW=(phishing.army malware-filter.gitlab.io)
-
-MUST_BLOCK=(
-  doubleclick.net ad.doubleclick.net g.doubleclick.net
-  googleadservices.com pagead2.googlesyndication.com
-  www.googletagmanager.com www.google-analytics.com
-)
 
 TEST_DOMAINS=(
   doubleclick.net ad.doubleclick.net googleadservices.com
