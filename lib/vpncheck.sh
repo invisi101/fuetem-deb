@@ -146,7 +146,7 @@ check_one() {
   if $expect; then
     ok "EXPECTED → $d"
     verdict="expected"
-  elif $sink || [[ -z "$av4$av6" ]] || [[ "$st4$st6" =~ NXDOMAIN|SERVFAIL ]]; then
+  elif $sink || [[ -z "$av4$av6" ]] || [[ "$st4$st6" =~ (NXDOMAIN|SERVFAIL) ]]; then
     ok "BLOCKED → $d"
     verdict="yes"
   else

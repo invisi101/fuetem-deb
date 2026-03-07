@@ -7,14 +7,12 @@ set -uo pipefail
 TRUFFLEHOG="$(command -v trufflehog 2>/dev/null || true)"
 GITLEAKS="$(command -v gitleaks 2>/dev/null || true)"
 
-if [[ -z "$TRUFFLEHOG" ]]; then
-    echo "❌ trufflehog not found in PATH. Install it first."
+if [[ -z "$TRUFFLEHOG" && -z "$GITLEAKS" ]]; then
+    echo "❌ Neither trufflehog nor gitleaks found in PATH. Install at least one."
     exit 1
 fi
-if [[ -z "$GITLEAKS" ]]; then
-    echo "❌ gitleaks not found in PATH. Install it first."
-    exit 1
-fi
+[[ -z "$TRUFFLEHOG" ]] && echo "⚠️  trufflehog not found — skipping TruffleHog scans."
+[[ -z "$GITLEAKS" ]] && echo "⚠️  gitleaks not found — skipping Gitleaks scans."
 
 LOG_DIR="${FUETEM_LOG_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/fuetem/logs}"
 TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
@@ -45,8 +43,10 @@ fi
 IFS=$'\n' REPOS=($(sort <<<"${REPOS[*]}")); unset IFS
 
 # --- Tool versions ---
-TRUFFLEHOG_VERSION=$("$TRUFFLEHOG" --version 2>&1 | head -1)
-GITLEAKS_VERSION=$("$GITLEAKS" version 2>&1 | head -1)
+TRUFFLEHOG_VERSION=""
+GITLEAKS_VERSION=""
+[[ -n "$TRUFFLEHOG" ]] && TRUFFLEHOG_VERSION=$("$TRUFFLEHOG" --version 2>&1 | head -1)
+[[ -n "$GITLEAKS" ]] && GITLEAKS_VERSION=$("$GITLEAKS" version 2>&1 | head -1)
 
 # --- Write log header ---
 {
@@ -56,8 +56,8 @@ GITLEAKS_VERSION=$("$GITLEAKS" version 2>&1 | head -1)
     echo "========================================"
     echo ""
     echo "Tools:"
-    echo "  TruffleHog: ${TRUFFLEHOG_VERSION}"
-    echo "  Gitleaks:   ${GITLEAKS_VERSION}"
+    [[ -n "$TRUFFLEHOG" ]] && echo "  TruffleHog: ${TRUFFLEHOG_VERSION}"
+    [[ -n "$GITLEAKS" ]] && echo "  Gitleaks:   ${GITLEAKS_VERSION}"
     echo ""
     echo "Repos scanned (${#REPOS[@]}):"
     for repo in "${REPOS[@]}"; do
@@ -96,17 +96,32 @@ for i in "${!REPOS[@]}"; do
     } >> "$LOG_FILE"
 
     # --- TruffleHog ---
-    echo "  [TruffleHog] running..."
-    th_output=$("$TRUFFLEHOG" git "file://$repo" --no-update 2>&1) || true
-
     th_verified=0
     th_unverified=0
-    if [ -n "$th_output" ]; then
-        # TruffleHog prints a JSON summary line with "verified_secrets": N, "unverified_secrets": N
-        th_verified=$(echo "$th_output" | { grep -oP '"verified_secrets":\s*\K\d+' || true; } | tail -1)
-        th_unverified=$(echo "$th_output" | { grep -oP '"unverified_secrets":\s*\K\d+' || true; } | tail -1)
-        [ -z "$th_verified" ] && th_verified=0
-        [ -z "$th_unverified" ] && th_unverified=0
+    if [[ -n "$TRUFFLEHOG" ]]; then
+        echo "  [TruffleHog] running..."
+        th_output=$("$TRUFFLEHOG" git "file://$repo" --no-update 2>&1) || true
+
+        if [ -n "$th_output" ]; then
+            # TruffleHog prints a JSON summary line with "verified_secrets": N, "unverified_secrets": N
+            th_verified=$(echo "$th_output" | { grep -oP '"verified_secrets":\s*\K\d+' || true; } | tail -1)
+            th_unverified=$(echo "$th_output" | { grep -oP '"unverified_secrets":\s*\K\d+' || true; } | tail -1)
+            [ -z "$th_verified" ] && th_verified=0
+            [ -z "$th_unverified" ] && th_unverified=0
+        fi
+
+        {
+            echo ""
+            echo "  [TruffleHog]"
+            echo "  Verified secrets:   $th_verified"
+            echo "  Unverified secrets: $th_unverified"
+            if [ -n "$th_output" ]; then
+                echo ""
+                echo "$th_output"
+            else
+                echo "  (no findings)"
+            fi
+        } >> "$LOG_FILE"
     fi
 
     TH_VERIFIED_ARR+=("$th_verified")
@@ -114,44 +129,33 @@ for i in "${!REPOS[@]}"; do
     TOTAL_TH_VERIFIED=$((TOTAL_TH_VERIFIED + th_verified))
     TOTAL_TH_UNVERIFIED=$((TOTAL_TH_UNVERIFIED + th_unverified))
 
-    {
-        echo ""
-        echo "  [TruffleHog]"
-        echo "  Verified secrets:   $th_verified"
-        echo "  Unverified secrets: $th_unverified"
-        if [ -n "$th_output" ]; then
-            echo ""
-            echo "$th_output"
-        else
-            echo "  (no findings)"
-        fi
-    } >> "$LOG_FILE"
-
     # --- Gitleaks ---
-    echo "  [Gitleaks] running..."
-    gl_output=$("$GITLEAKS" detect --source "$repo" --no-banner 2>&1) || true
-
     gl_leaks=0
-    if [ -n "$gl_output" ]; then
-        # Strip ANSI color codes, then match "leaks found: N" format
-        gl_leaks=$(echo "$gl_output" | sed 's/\x1b\[[0-9;]*m//g' | { grep -oP 'leaks found:\s*\K\d+' || true; } | head -1)
-        [ -z "$gl_leaks" ] && gl_leaks=0
+    if [[ -n "$GITLEAKS" ]]; then
+        echo "  [Gitleaks] running..."
+        gl_output=$("$GITLEAKS" detect --source "$repo" --no-banner 2>&1) || true
+
+        if [ -n "$gl_output" ]; then
+            # Strip ANSI color codes, then match "leaks found: N" format
+            gl_leaks=$(echo "$gl_output" | sed 's/\x1b\[[0-9;]*m//g' | { grep -oP 'leaks found:\s*\K\d+' || true; } | head -1)
+            [ -z "$gl_leaks" ] && gl_leaks=0
+        fi
+
+        {
+            echo ""
+            echo "  [Gitleaks]"
+            echo "  Leaks found: $gl_leaks"
+            if [ -n "$gl_output" ]; then
+                echo ""
+                echo "$gl_output"
+            else
+                echo "  (no findings)"
+            fi
+        } >> "$LOG_FILE"
     fi
 
     GL_FINDINGS_ARR+=("$gl_leaks")
     TOTAL_GL=$((TOTAL_GL + gl_leaks))
-
-    {
-        echo ""
-        echo "  [Gitleaks]"
-        echo "  Leaks found: $gl_leaks"
-        if [ -n "$gl_output" ]; then
-            echo ""
-            echo "$gl_output"
-        else
-            echo "  (no findings)"
-        fi
-    } >> "$LOG_FILE"
 done
 
 # --- Summary ---

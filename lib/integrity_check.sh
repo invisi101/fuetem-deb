@@ -1,7 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Integrity & Security Check
 
-AIDE_LOG="/tmp/aide_last_check.log"
+OUTDIR="${FUETEM_LOG_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/fuetem/logs}"
+mkdir -p "$OUTDIR"
+AIDE_LOG="$OUTDIR/aide_last_check.log"
 AUDIT_TIMEFRAME="24h"
 WARNINGS=()
 SCORE=10
@@ -12,16 +14,20 @@ echo ""
 ##########################################
 # AIDE Check
 ##########################################
-echo "AIDE File Integrity Check"
-sudo aide --check > "$AIDE_LOG" 2>/dev/null
+if command -v aide >/dev/null 2>&1; then
+    echo "AIDE File Integrity Check"
+    sudo aide --check > "$AIDE_LOG" 2>/dev/null
 
-if grep -qE "added|removed|changed" "$AIDE_LOG"; then
-    echo "AIDE detected file changes:"
-    grep -E 'added|removed|changed' "$AIDE_LOG" | sed 's/^/   - /'
-    WARNINGS+=("Filesystem integrity deviation")
-    ((SCORE-=2))
+    if grep -qE "added|removed|changed" "$AIDE_LOG"; then
+        echo "AIDE detected file changes:"
+        grep -E 'added|removed|changed' "$AIDE_LOG" | sed 's/^/   - /'
+        WARNINGS+=("Filesystem integrity deviation")
+        ((SCORE-=2))
+    else
+        echo "No file changes detected — system files intact."
+    fi
 else
-    echo "No file changes detected — system files intact."
+    echo "aide not installed — skipping file integrity check."
 fi
 echo ""
 
@@ -62,48 +68,52 @@ echo ""
 # Auditd Analysis
 ##########################################
 
-echo "Audit Events (last $AUDIT_TIMEFRAME)"
-echo ""
+if command -v ausearch >/dev/null 2>&1 && command -v aureport >/dev/null 2>&1; then
+    echo "Audit Events (last $AUDIT_TIMEFRAME)"
+    echo ""
 
-# Sudo/Privilege Use
-SUDO_EVENTS=$(sudo ausearch --start $AUDIT_TIMEFRAME -k sudo_exec 2>/dev/null | aureport -x -i 2>/dev/null)
-if [[ "$SUDO_EVENTS" =~ "sudo" ]]; then
-    COUNT=$(echo "$SUDO_EVENTS" | grep -c 'sudo')
-    echo "Sudo used $COUNT time(s)."
-    ((SCORE-=0))  # Normal use, no penalty
-else
-    echo "No sudo activity — no privilege escalation."
-fi
+    # Sudo/Privilege Use
+    SUDO_EVENTS=$(sudo ausearch --start $AUDIT_TIMEFRAME -k sudo_exec 2>/dev/null | aureport -x -i 2>/dev/null)
+    if [[ "$SUDO_EVENTS" =~ "sudo" ]]; then
+        COUNT=$(echo "$SUDO_EVENTS" | grep -c 'sudo')
+        echo "Sudo used $COUNT time(s)."
+        ((SCORE-=0))  # Normal use, no penalty
+    else
+        echo "No sudo activity — no privilege escalation."
+    fi
 
-# Kernel Module Loads
-MOD_EVENTS=$(sudo ausearch --start $AUDIT_TIMEFRAME -k modload 2>/dev/null)
-if [[ -n "$MOD_EVENTS" ]]; then
-    echo "Kernel module activity detected!"
-    WARNINGS+=("Kernel module activity")
-    ((SCORE-=1))
-else
-    echo "No kernel modules were loaded/unloaded."
-fi
+    # Kernel Module Loads
+    MOD_EVENTS=$(sudo ausearch --start $AUDIT_TIMEFRAME -k modload 2>/dev/null)
+    if [[ -n "$MOD_EVENTS" ]]; then
+        echo "Kernel module activity detected!"
+        WARNINGS+=("Kernel module activity")
+        ((SCORE-=1))
+    else
+        echo "No kernel modules were loaded/unloaded."
+    fi
 
-# Suspicious Exec in /tmp
-TMP_EVENTS=$(sudo ausearch --start $AUDIT_TIMEFRAME -k tmp_exec 2>/dev/null)
-if [[ -n "$TMP_EVENTS" ]]; then
-    echo "Executables ran from /tmp — this could be suspicious."
-    WARNINGS+=("Executable run from /tmp")
-    ((SCORE-=2))
-else
-    echo "No suspicious executable activity in /tmp, /var/tmp, or /dev/shm."
-fi
+    # Suspicious Exec in /tmp
+    TMP_EVENTS=$(sudo ausearch --start $AUDIT_TIMEFRAME -k tmp_exec 2>/dev/null)
+    if [[ -n "$TMP_EVENTS" ]]; then
+        echo "Executables ran from /tmp — this could be suspicious."
+        WARNINGS+=("Executable run from /tmp")
+        ((SCORE-=2))
+    else
+        echo "No suspicious executable activity in /tmp, /var/tmp, or /dev/shm."
+    fi
 
-# Failed Logins
-FAILLOGS=$(sudo ausearch --start $AUDIT_TIMEFRAME -k login_failures 2>/dev/null)
-if [[ -n "$FAILLOGS" ]]; then
-    COUNT=$(echo "$FAILLOGS" | grep -c "type=USER_LOGIN")
-    echo "$COUNT failed login attempt(s) detected."
-    WARNINGS+=("Failed login attempts")
-    ((SCORE-=1))
+    # Failed Logins
+    FAILLOGS=$(sudo ausearch --start $AUDIT_TIMEFRAME -k login_failures 2>/dev/null)
+    if [[ -n "$FAILLOGS" ]]; then
+        COUNT=$(echo "$FAILLOGS" | grep -c "type=USER_LOGIN")
+        echo "$COUNT failed login attempt(s) detected."
+        WARNINGS+=("Failed login attempts")
+        ((SCORE-=1))
+    else
+        echo "No failed login attempts — good."
+    fi
 else
-    echo "No failed login attempts — good."
+    echo "auditd not installed — skipping audit event analysis."
 fi
 echo ""
 
