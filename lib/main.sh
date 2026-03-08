@@ -110,11 +110,7 @@ cleanup() {
 ## Orphaned packages
 	echo "Checking for orphaned packages..."
 	local orphans
-	if command -v deborphan >/dev/null 2>&1; then
-		orphans=$(deborphan 2>/dev/null) || true
-	else
-		orphans=$(apt autoremove --dry-run 2>/dev/null | awk '/^Remv / {print $2}') || true
-	fi
+	orphans=$(apt autoremove --dry-run 2>/dev/null | awk '/^Remv / {print $2}') || true
 	if [[ -n "${orphans:-}" ]]; then
 		echo "$orphans"
 		echo
@@ -411,19 +407,6 @@ vpn_check() {
 	fi
 }
 
-# ===========================
-# ====SECRET SCAN============
-# ===========================
-secret_scan() {
-	echo "Running git secret scan..."
-	echo
-
-	if [[ -f "$FUETEM_LIB_DIR/scan-secrets.sh" ]]; then
-		bash "$FUETEM_LIB_DIR/scan-secrets.sh" || true
-	else
-		echo "scan-secrets.sh missing in $FUETEM_LIB_DIR"
-	fi
-}
 
 # ===========================
 # ====UPDATE CHECKER==========
@@ -579,7 +562,6 @@ options=(
 "Integrity Check"
 "Network Port Scan"
 "VPN Check"
-"Secret Scan"
 "Verify File Checksum"
 "Exit"
 )
@@ -595,7 +577,6 @@ select opt in "${options[@]}"; do
 	"Integrity Check") integrity_check ;;
 	"Network Port Scan") network_scan ;;
 	"VPN Check") vpn_check ;;
-	"Secret Scan") secret_scan ;;
 	"Verify File Checksum") checksum_verify ;;
         "Exit")
             echo "Exiting. System still standing."

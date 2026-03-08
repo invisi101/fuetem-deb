@@ -1,6 +1,6 @@
 # fuetem-deb
 
-**System maintenance console for Debian-based distros** (Debian, Ubuntu, Mint, Pop!_OS) — a menu-driven TUI that brings together cleanup, health checks, security auditing, VPN leak testing, secret scanning, and real-time system monitoring.
+**System maintenance console for Debian-based distros** (Debian, Ubuntu, Mint, Pop!_OS) — a menu-driven TUI that brings together cleanup, health checks, security auditing, VPN leak testing, and real-time system monitoring.
 
 ## Features
 
@@ -15,8 +15,7 @@
 | 7 | **Integrity Check** | AIDE, debsums file integrity, debsecan CVEs, auditd analysis, SUID/SGID scan |
 | 8 | **Network Port Scan** | Local listening ports + optional nmap LAN sweep |
 | 9 | **VPN Check** | ProtonVPN leak audit — IP, DNS, IPv6, STUN, ad/tracker blocking scorecard |
-| 10 | **Secret Scan** | TruffleHog / Gitleaks across all local git repos |
-| 11 | **Verify File Checksum** | SHA-256 verification with clipboard auto-detect |
+| 10 | **Verify File Checksum** | SHA-256 verification with clipboard auto-detect |
 
 ## Install
 
@@ -94,7 +93,6 @@ These are installed automatically whether you use `apt install ./fuetem-deb_*_al
 | `coreutils` | Core utilities |
 | `systemd` | Service browser, journal, timers |
 | `curl` | VPN check, public IP lookup |
-| `deborphan` | Orphan package detection |
 | `debsums` | Package file integrity |
 | `debsecan` | CVE vulnerability scanning |
 | `smartmontools` | NVMe SMART health checks |
@@ -107,8 +105,6 @@ Not installed automatically. Install manually if you want the features they enab
 
 | Package | Used by |
 |---------|---------|
-| `gitleaks` | Git secret scanning |
-| `trufflehog` | Git secret scanning |
 | `aide` | File integrity monitoring |
 | `auditd` | Security event analysis |
 | `btrfs-progs` | Btrfs filesystem checks |
@@ -159,7 +155,7 @@ Reclaims disk space and detects drift across multiple areas:
 - **Coredumps** — removes systemd coredumps. These are memory snapshots from crashed processes and can be hundreds of megabytes each.
 - **APT cache** — runs `apt-get clean` to purge downloaded `.deb` files from `/var/cache/apt/archives/`. After packages are installed, the cached archives serve no purpose unless you plan to reinstall offline.
 - **Flatpak runtimes** — removes unused Flatpak runtimes. Flatpak apps share runtimes, but when all apps using a particular runtime are removed, the runtime itself stays behind.
-- **Orphaned packages** — uses `deborphan` (or `apt autoremove --dry-run` as fallback) to find packages that were installed as dependencies but are no longer needed. These accumulate over time as you install and remove software. Lists them and asks for confirmation before removal.
+- **Orphaned packages** — uses `apt autoremove` to find packages that were installed as dependencies but are no longer needed. These accumulate over time as you install and remove software. Lists them and asks for confirmation before removal.
 - **Broken symlinks** — scans home directory, `/etc`, and `/usr/local/bin` for dangling symlinks, filtering out expected runtime locks. Broken symlinks can cause confusing errors when applications try to follow them.
 - **Chezmoi drift** — if chezmoi is installed, checks whether your live dotfiles have diverged from what chezmoi manages. Untracked drift means changes that won't survive a reinstall or a move to a new machine.
 - **Failed systemd services** — flags any services that have entered a failed state.
@@ -212,16 +208,7 @@ A comprehensive VPN leak audit designed for ProtonVPN with NetShield, but useful
 
 Produces timestamped text and CSV reports in the logs directory.
 
-### 10. Secret Scan
-
-Scans every git repository under your home directory for accidentally committed secrets (API keys, passwords, tokens, private keys). Runs whichever of these tools are available:
-
-- **TruffleHog** — scans git history for high-entropy strings and known secret patterns, distinguishing between verified (confirmed live) and unverified secrets.
-- **Gitleaks** — pattern-based scanning using a comprehensive ruleset for common secret formats.
-
-Produces a summary table showing findings per repository and a detailed log file. Accidentally committed secrets are one of the most common causes of security breaches — a single AWS key in a public repo can result in thousands of dollars of charges within hours.
-
-### 11. Verify File Checksum
+### 10. Verify File Checksum
 
 SHA-256 file verification with convenience features:
 

@@ -5,7 +5,7 @@ SHAREDIR  = $(PREFIX)/share/fuetem
 APPDIR    = $(PREFIX)/share/applications
 
 DESTDIR   ?=
-DEPS      = bash iproute2 coreutils systemd dnsutils curl deborphan debsums debsecan smartmontools nmap lm-sensors
+DEPS      = bash iproute2 coreutils systemd dnsutils curl debsums debsecan smartmontools nmap lm-sensors
 
 .PHONY: install install-files uninstall deps
 
@@ -21,7 +21,7 @@ install-files:
 	install -m 644 lib/lib.sh $(DESTDIR)$(LIBDIR)/lib.sh
 	install -m 644 lib/main.sh $(DESTDIR)$(LIBDIR)/main.sh
 	install -m 755 lib/vpncheck.sh $(DESTDIR)$(LIBDIR)/vpncheck.sh
-	install -m 755 lib/scan-secrets.sh $(DESTDIR)$(LIBDIR)/scan-secrets.sh
+
 	install -m 755 lib/integrity_check.sh $(DESTDIR)$(LIBDIR)/integrity_check.sh
 	install -m 755 lib/sysmonitor.sh $(DESTDIR)$(LIBDIR)/sysmonitor.sh
 	install -m 644 assets/arch.png $(DESTDIR)$(SHAREDIR)/arch.png
