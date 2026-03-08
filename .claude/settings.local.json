@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh run:*)",
+      "Bash(git:*)",
+      "Bash(grep:*)",
+      "Bash(head:*)",
+      "Bash(command:*)",
+      "Bash(make:*)",
+      "Bash(shellcheck:*)",
+      "Bash(makepkg:*)"
+    ]
+  }
+}
