@@ -2,6 +2,8 @@
 
 **System maintenance console for Debian-based distros** (Debian, Ubuntu, Mint, Pop!_OS) — a menu-driven TUI that brings together cleanup, health checks, security auditing, VPN leak testing, and real-time system monitoring.
 
+![Arch Banner](assets/arch.png)
+
 ## Features
 
 | # | Module | Description |
