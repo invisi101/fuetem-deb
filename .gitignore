@@ -3,3 +3,4 @@ pkg/
 src/
 docs/RELEASING.md
 .claude/
+__pycache__/
